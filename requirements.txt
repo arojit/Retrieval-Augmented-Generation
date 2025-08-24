@@ -6,3 +6,5 @@ torch
 transformers
 huggingface-hub
 accelerate
+pypdf
+pdfminer.six
