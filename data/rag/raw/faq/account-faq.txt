@@ -1,0 +1,9 @@
+TITLE: Account & Billing FAQ
+SOURCE: https://example.com/help/account
+LAST_UPDATED: 2025-06-12
+
+Q: How do I change my email?
+A: Go to Settings → Profile → Email.
+
+Q: Do you support GST invoices?
+A: Yes. Provide GSTIN at checkout…
