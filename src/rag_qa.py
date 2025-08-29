@@ -2,6 +2,9 @@ import os, json, faiss, numpy as np, torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from sentence_transformers import SentenceTransformer
 from huggingface_hub import login
+from fastapi import FastAPI
+from pydantic import BaseModel
+
 
 # ----- Auth (env var or prior CLI login) -----
 HF_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", None)
@@ -102,27 +105,24 @@ def answer(q, k=5, max_new_tokens=400):
         repetition_penalty=1.05
     )[0]["generated_text"]
 
-    # Append a simple “Sources” footer if you have them
-    sources_block = ""
     cleaned_refs = [f"[{i}] {s}" for (i, s) in refs if s]
-    if cleaned_refs:
-        sources_block = "\n\nSources:\n" + "\n".join(cleaned_refs)
 
-    return out + sources_block
+    return {
+        "answer": out,
+        "sources": cleaned_refs
+    }
 
-if __name__ == "__main__":
-    print("--------------------------------------------------------")
-    print(answer("What's our refund policy?"))
-    print("========================================================")
 
-    print("--------------------------------------------------------")
-    print(answer("How do I change my email"))
-    print("========================================================")
+# ----- FastAPI -----
+app = FastAPI(title="RAG API", version="1.0")
 
-    print("--------------------------------------------------------")
-    print(answer("When can I get full refund?"))
-    print("========================================================")
+class QueryRequest(BaseModel):
+    query: str
+    k: int = 5
+    max_new_tokens: int = 400
 
-    print("--------------------------------------------------------")
-    print(answer("Address of Sherlock Holmes"))
-    print("========================================================")
+@app.post("/ask")
+def ask(req: QueryRequest):
+    result = answer(req.query, k=req.k, max_new_tokens=req.max_new_tokens)
+    return result
+

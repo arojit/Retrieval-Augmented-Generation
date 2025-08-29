@@ -83,13 +83,39 @@ python src/rag_build_index.py
 ### Step 2: Ask Questions
 
 ```bash
-python src/rag_qa.py
+uvicorn src.rag_qa:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-- Enter your question when prompted.
+- Invoke the below API.
 - The model will return an answer using relevant document segments.
+```
+curl --location 'http://127.0.0.1:8080/ask' \
+--header 'Content-Type: application/json' \
+--data '{
+    "query":"What is our refund policy?"
+}'
+```
+Response
+```
+{
+    "answer": "Our refund policy allows full refunds within 30 days for unused licenses [1]. For pro-rated subscriptions, partial refunds are available. [1]",
+    "sources": [
+        "[1] data/rag/raw/policy/refund-policy.md",
+        "[2] data/rag/raw/sherlock/adventure-of-sherlock-holmes.pdf",
+        "[3] data/rag/raw/sherlock/adventure-of-sherlock-holmes.pdf",
+        "[4] data/rag/raw/sherlock/adventure-of-sherlock-holmes.pdf",
+        "[5] data/rag/raw/sherlock/adventure-of-sherlock-holmes.pdf"
+    ]
+}
+```
 
 ---
+
+## Questions you can ask
+- What is our refund policy?
+- How do I change my email
+- When can I get full refund?
+- Address of Sherlock Holmes
 
 ## Features
 
